@@ -13,11 +13,3 @@
 - 执行过程可以按照优先级顺序
 
 &emsp;&emsp;有的线程可能负责更紧急的任务，此时其应该优先享受资源。
-
-![](https://github.com/Night221018/Thread-management-tools/blob/main/png/1.png)
-
-![](png\2.png)
-
-![](png\3.png)
-
-![](png\4.png)
