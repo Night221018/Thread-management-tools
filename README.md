@@ -20,5 +20,5 @@
 
 &emsp;&emsp;有的线程可能负责更紧急的任务，此时其应该优先享受资源。
 
-![](png\概述图.png)
+![](https://github.com/Night221018/Thread-management-tools/blob/main/png/概述图.png)
 
