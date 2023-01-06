@@ -22,5 +22,11 @@ int main() {
     cout << n << endl;
     lin::thread_pool tp(2);
     tp.start();
+    for (int i = 0; i < 10; ++i) {
+        tp.add_one_task(func, i, ref(n));
+    }
+    cout << "add task done" << endl;
+    sleep(3);
+    tp.stop();
     return 0;
 }

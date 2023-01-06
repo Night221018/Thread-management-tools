@@ -15,6 +15,7 @@
 #include <queue>
 #include <condition_variable>
 #include <mutex>
+#include <unistd.h>
 
 #define BEGIN(x) namespace x {
 #define END(x) }
@@ -37,17 +38,23 @@ private:
 class thread_pool {
 public:
     thread_pool(int thread_size = 5) 
-    : thread_size(thread_size), is_started(false), m_mutex(), m_cond(m_mutex) {}
+    : thread_size(thread_size), is_started(false), m_mutex(), m_cond() {}
     
     void start();
     void stop();
+    void stop_wait_queue();
+    template<typename Func_T,  typename ...ARGS>
+    void add_one_task(Func_T f, ARGS...args) {
+        __add_one_task(new Task(f, std::forward<ARGS>(args)...));
+        return ;
+    }
     ~thread_pool() {
         stop();
     }
 private:
     void thread_loop();
     Task *get_one_task();
-    void add_one_task(Task *);
+    void __add_one_task(Task *);
 
     int thread_size;
     bool is_started;
@@ -70,6 +77,7 @@ void thread_pool::start() {
 void thread_pool::stop() {
     std::unique_lock<std::mutex> lock(m_mutex);
     is_started = false;
+    m_cond.notify_all();
     for (int i = 0; i < Threads.size(); ++i) {
         Threads[i]->join();
         delete Threads[i];
@@ -82,7 +90,7 @@ void thread_pool::thread_loop() {
     while (is_started) {
         Task *t = get_one_task();
         if (t != nullptr) {
-            std::cout << "thread_loop tid : " << CurrentThread::tid() << std::endl;
+            std::cout << "thread_loop tid : " << std::this_thread::get_id() << std::endl;
             t->run();
         }
     }
@@ -102,10 +110,10 @@ Task* thread_pool::get_one_task() {
     return t;
 }
 
-void thread_pool::add_one_task(Task *t) {
+void thread_pool::__add_one_task(Task *t) {
     std::unique_lock<std::mutex> lock(m_mutex);
     Tasks.push(t);
-    m_cond.notify();
+    m_cond.notify_one();
     return ;
 }
 
