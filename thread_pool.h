@@ -55,11 +55,16 @@ void thread_pool::start() {
 }
 
 void thread_pool::stop() {
+    for (int i = 0; i < Threads.size(); ++i) {
+        Threads[i]->join();
+        delete Threads[i];
+    }
+    Threads.clear();
     return ;
 }
 
 void thread_pool::thread_loop() {
-    std::cout << "hello world" << std::endl << std::flush;
+    std::cout << "hello world" << std::endl;
     return ;
 }
 
