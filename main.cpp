@@ -20,5 +20,7 @@ int main() {
     lin::Task t(func, 23, ref(n));
     t.run();
     cout << n << endl;
+    lin::thread_pool tp(3);
+    tp.start();
     return 0;
 }

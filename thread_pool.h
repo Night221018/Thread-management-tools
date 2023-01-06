@@ -10,6 +10,8 @@
 
 #include <iostream>
 #include <functional>
+#include <vector>
+#include <thread>
 
 #define BEGIN(x) namespace x {
 #define END(x) }
@@ -28,6 +30,38 @@ public:
 private:
     std::function<void()> func;
 };
+
+class thread_pool {
+public:
+    thread_pool(int thread_size = 5) : thread_size(thread_size) {
+
+    }
+    void start();
+    void stop();
+    ~thread_pool() {
+        stop();
+    }
+private:
+    void thread_loop();
+    int thread_size;
+    std::vector<std::thread *> Threads;
+};
+
+void thread_pool::start() {
+    for (int i = 0; i < thread_size; ++i) {
+        Threads.push_back(new std::thread(&thread_pool::thread_loop, this));
+    }
+    return ;
+}
+
+void thread_pool::stop() {
+    return ;
+}
+
+void thread_pool::thread_loop() {
+    std::cout << "hello world" << std::endl << std::flush;
+    return ;
+}
 
 END(lin)
 
