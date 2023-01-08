@@ -18,28 +18,36 @@
 
 BEGIN(lin)
 
+/****************************************/
+/***********************/
+
 class Task {
 public:
     template<typename FUNCTION, typename... ARGS>
-    Task(FUNCTION &&func, ARGS... args) {
-        this->func = std::bind(func, std::forward<ARGS>(args)...);
-    }
-    void run() {
-        std::cout << "Task run : ";
-        func();
-        return ;
-    }
+    Task(FUNCTION &&, ARGS...); 
+    void run(); 
 private:
     std::function<void()> func;
 };
 
+template<typename FUNCTION, typename... ARGS>
+Task::Task(FUNCTION &&func, ARGS... args) {
+    this->func = std::bind(func, std::forward<ARGS>(args)...);
+}
+
+void Task::run() {
+    std::cout << "Task run : ";
+    func();
+    return ;
+}
+
+/***********************/
+/****************************************/
+/***********************/
+
 class ThreadPool {
 public:
-    ThreadPool(int n = 5) {
-        for (int i = 0; i < n; ++i) {
-            threads.push_back(new std::thread(&ThreadPool::workerThread, this));
-        }
-    }
+    ThreadPool(int n = 5); 
     template<typename FUNCTION, typename... ARGS>
     void addOneTask(FUNCTION &&, ARGS...);
     
@@ -48,31 +56,44 @@ private:
     std::queue<Task *> tasks;
     std::unordered_map<std::thread::id, bool> running;
 
-    void workerThread() {
-        std::thread::id id = std::this_thread::get_id();
-        // std::cout << id << std::endl;
-        running[id] = true;
-        while (running[id]) {
-            // get Task
-            Task *t = this->getOneTask();
-            // run Task
-            t->run();
-            // del Task
-            delete t;
-        }
-        return ;
-    }
-    Task *getOneTask() {
-        // TODO
-        return nullptr;
-    }
+    void workerThread(); 
+    Task *getOneTask(); 
 };
+
+ThreadPool::ThreadPool(int n) {
+    for (int i = 0; i < n; ++i) {
+        threads.push_back(new std::thread(&ThreadPool::workerThread, this));
+    }
+}
 
 template<typename FUNCTION, typename... ARGS>
 void ThreadPool::addOneTask(FUNCTION &&func, ARGS... args) {
     // TODO
     return ;
 }
+
+void ThreadPool::workerThread() {
+    std::thread::id id = std::this_thread::get_id();
+    // std::cout << id << std::endl;
+    running[id] = true;
+    while (running[id]) {
+        // get Task
+        Task *t = this->getOneTask();
+        // run Task
+        t->run();
+        // del Task
+        delete t;
+    }
+    return ;
+}
+
+Task* ThreadPool::getOneTask() {
+    // TODO
+    return nullptr;
+
+}
+/***********************/
+/****************************************/
 
 END(lin)
 
