@@ -12,6 +12,8 @@
 #include <queue>
 #include <unistd.h>
 #include <unordered_map>
+#include <mutex>
+#include <condition_variable>
 
 #define BEGIN(x) namespace x {
 #define END(x) }
@@ -55,6 +57,8 @@ private:
     std::vector<std::thread *> threads;
     std::queue<Task *> tasks;
     std::unordered_map<std::thread::id, bool> running;
+    std::mutex m_mutex;
+    std::condition_variable m_cond;
 
     void workerThread(); 
     Task *getOneTask(); 
@@ -68,7 +72,9 @@ ThreadPool::ThreadPool(int n) {
 
 template<typename FUNCTION, typename... ARGS>
 void ThreadPool::addOneTask(FUNCTION &&func, ARGS... args) {
-    // TODO
+    std::unique_lock<std::mutex> lock(m_mutex);
+    tasks.push(new Task(func, std::forward<ARGS>(args)...));
+    m_cond.notify_one();
     return ;
 }
 
@@ -88,8 +94,13 @@ void ThreadPool::workerThread() {
 }
 
 Task* ThreadPool::getOneTask() {
-    // TODO
-    return nullptr;
+    std::unique_lock<std::mutex> lock(m_mutex);
+    while (tasks.empty()) {
+        m_cond.wait(lock);
+    }
+    Task *t = tasks.front();
+    tasks.pop();
+    return t;
 
 }
 /***********************/
@@ -98,15 +109,14 @@ Task* ThreadPool::getOneTask() {
 END(lin)
 
 void func(int a, int b, int c) {
-    std::cout << a + b + c << std::endl;
+    std::cout << a << ", " << b << ", " << c << std::endl;
     return ;
 }
 
 int main() {
-    lin::Task t1(func, 1, 2, 3);
     lin::ThreadPool tp;
-    sleep(1);
-    std::cout << "hello world" << std::endl;
-    t1.run();
+    for (int i = 0; i < 10; ++i) {
+        tp.addOneTask(func, i, 2 * i, 3 * i);
+    }
     return 0;
 }
