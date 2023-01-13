@@ -52,7 +52,8 @@ public:
     ThreadPool(int n = 5); 
     template<typename FUNCTION, typename... ARGS>
     void addOneTask(FUNCTION &&, ARGS...);
-    
+    void stop();
+
 private:
     std::vector<std::thread *> threads;
     std::queue<Task *> tasks;
@@ -62,6 +63,7 @@ private:
 
     void workerThread(); 
     Task *getOneTask(); 
+    void stop_thread();
 };
 
 ThreadPool::ThreadPool(int n) {
@@ -75,6 +77,16 @@ void ThreadPool::addOneTask(FUNCTION &&func, ARGS... args) {
     std::unique_lock<std::mutex> lock(m_mutex);
     tasks.push(new Task(func, std::forward<ARGS>(args)...));
     m_cond.notify_one();
+    return ;
+}
+
+void ThreadPool::stop() {
+    for (int i = 0; i < threads.size(); ++i) {
+        this->addOneTask(&ThreadPool::stop_thread, this);
+    }
+    for (auto t : threads) {
+        t->join();
+    }
     return ;
 }
 
@@ -101,8 +113,14 @@ Task* ThreadPool::getOneTask() {
     Task *t = tasks.front();
     tasks.pop();
     return t;
-
 }
+
+void ThreadPool::stop_thread() {
+    std::thread::id id = std::this_thread::get_id();
+    running[id] = false;
+    return ;
+}
+
 /***********************/
 /****************************************/
 
@@ -118,5 +136,6 @@ int main() {
     for (int i = 0; i < 10; ++i) {
         tp.addOneTask(func, i, 2 * i, 3 * i);
     }
+    tp.stop();
     return 0;
 }
