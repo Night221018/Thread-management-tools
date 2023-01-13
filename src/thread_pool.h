@@ -1,51 +1,14 @@
 /*************************************************************************
-	> File Name: thread_pool.cpp
-	> Author: luzelin
-	> Mail: luzelin1024@163.com
-	> Created Time: Sun 08 Jan 2023 10:44:40 AM UTC
+    > File Name: thread_pool.h
+    > Author: luzelin
+    > Mail: luzelin1024@163.com
+    > Created Time: Fri 13 Jan 2023 01:39:52 PM UTC
  ************************************************************************/
 
-#include <iostream>
-#include <vector>
-#include <thread>
-#include <functional>
-#include <queue>
-#include <unistd.h>
-#include <unordered_map>
-#include <mutex>
-#include <condition_variable>
-
-#define BEGIN(x) namespace x {
-#define END(x) }
+#ifndef _THREAD_POOL_H
+#define _THREAD_POOL_H
 
 BEGIN(lin)
-
-/****************************************/
-/***********************/
-
-class Task {
-public:
-    template<typename FUNCTION, typename... ARGS>
-    Task(FUNCTION &&, ARGS...); 
-    void run(); 
-private:
-    std::function<void()> func;
-};
-
-template<typename FUNCTION, typename... ARGS>
-Task::Task(FUNCTION &&func, ARGS... args) {
-    this->func = std::bind(func, std::forward<ARGS>(args)...);
-}
-
-void Task::run() {
-    std::cout << "Task run : ";
-    func();
-    return ;
-}
-
-/***********************/
-/****************************************/
-/***********************/
 
 class ThreadPool {
 public:
@@ -121,21 +84,6 @@ void ThreadPool::stop_thread() {
     return ;
 }
 
-/***********************/
-/****************************************/
-
 END(lin)
 
-void func(int a, int b, int c) {
-    std::cout << a << ", " << b << ", " << c << std::endl;
-    return ;
-}
-
-int main() {
-    lin::ThreadPool tp;
-    for (int i = 0; i < 10; ++i) {
-        tp.addOneTask(func, i, 2 * i, 3 * i);
-    }
-    tp.stop();
-    return 0;
-}
+#endif
