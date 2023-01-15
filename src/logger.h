@@ -1,11 +1,12 @@
 /*************************************************************************
-	> File Name: logger.cpp
+	> File Name: logger.h
 	> Author: luzelin
 	> Mail: luzelin1024@163.com
-	> Created Time: Fri 13 Jan 2023 01:48:05 PM UTC
+	> Created Time: Sun 15 Jan 2023 03:13:34 PM UTC
  ************************************************************************/
 
-#include "head.h"
+#ifndef _LOGGER_H
+#define _LOGGER_H
 
 #define LOG(level) lin::Logger::LoggerStream(level, __FILE__, __LINE__, lin::lin_log)
 #define LOG_INFO LOG(lin::LogLevel::INFO)
@@ -47,13 +48,13 @@ public:
     Logger() : LOG_LEVEL(LogLevel::INFO) {}
     void set_level(int level) {
         this->LOG_LEVEL = level;
-    } 
+    }
     int LOG_LEVEL;
     std::mutex m_mutex;
 
     class LoggerStream : public std::ostringstream {
     public:
-        LoggerStream(int level, const char *file_name, int line_no, Logger &raw_log) 
+        LoggerStream(int level, const char *file_name, int line_no, Logger &raw_log)
         : line_no(line_no), level(level), raw_log(raw_log) {
             std::ostringstream &now = *this;
             now << "[" << file_name << " : " << LevelString[level] << "] ";
@@ -75,22 +76,4 @@ Logger lin_log;
 END(lin)
 
 
-void func(int a, int b, int c) {
-    LOG_INFO << a << " " << b << " " << c;
-    return ;
-}
-
-int main() {
-    SET_LEVEL(lin::LogLevel::DEBUG);
-    LOG_INFO << "hello world" << 123 << " " << 12.45;
-    LOG_WARNING << "hello world" << 123 << " " << 12.45;
-    LOG_DEBUG << "hello world" << 123 << " " << 12.45;
-    LOG_ERROR << "hello world" << 123 << " " << 12.45;
-    LOG_FATAL << "hello world" << 123 << " " << 12.45;
-    lin::ThreadPool tp;
-    for (int i = 0; i < 10; ++i) {
-        tp.addOneTask(func, i, 2 * i, 3 * i);
-    }
-    tp.stop();
-    return 0;
-}
+#endif

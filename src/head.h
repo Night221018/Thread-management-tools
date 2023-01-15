@@ -25,5 +25,6 @@
 
 #include "task.h"
 #include "thread_pool.h"
+#include "logger.h"
 
 #endif

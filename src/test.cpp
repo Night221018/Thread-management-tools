@@ -8,11 +8,17 @@
 #include "head.h"
 
 void func(int a, int b, int c) {
-    std::cout << a << ", " << b << ", " << c << std::endl;
+    LOG_INFO << a << " " << b << " " << c;
     return ;
 }
 
 int main() {
+    // SET_LEVEL(lin::LogLevel::DEBUG);
+    LOG_INFO << "hello world" << 123 << " " << 12.45;
+    LOG_WARNING << "hello world" << 123 << " " << 12.45;
+    LOG_DEBUG << "hello world" << 123 << " " << 12.45;
+    LOG_ERROR << "hello world" << 123 << " " << 12.45;
+    LOG_FATAL << "hello world" << 123 << " " << 12.45;
     lin::ThreadPool tp;
     for (int i = 0; i < 10; ++i) {
         tp.addOneTask(func, i, 2 * i, 3 * i);
@@ -20,3 +26,4 @@ int main() {
     tp.stop();
     return 0;
 }
+
