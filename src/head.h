@@ -17,6 +17,8 @@
 #include <unordered_map>
 #include <mutex>
 #include <condition_variable>
+#include <sstream>
+#include <map>
 
 #define BEGIN(x) namespace x {
 #define END(x) }

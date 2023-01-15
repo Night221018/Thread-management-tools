@@ -5,10 +5,7 @@
 	> Created Time: Fri 13 Jan 2023 01:48:05 PM UTC
  ************************************************************************/
 
-#include <iostream>
-#include <sstream>
-#include <map>
-#include "thread_pool.h"
+#include "head.h"
 
 #define LOG(level) lin::Logger::LoggerStream(level, __FILE__, __LINE__, lin::lin_log)
 #define LOG_INFO LOG(lin::LogLevel::INFO)
@@ -17,10 +14,6 @@
 #define LOG_ERROR LOG(lin::LogLevel::ERROR)
 #define LOG_FATAL LOG(lin::LogLevel::FATAL)
 #define SET_LEVEL(level) lin::lin_log.set_level(level)
-
-
-// #define BEGIN(x) namespace x {
-//  #define END(x) }
 
 
 BEGIN(lin)
@@ -52,6 +45,11 @@ static std::map<int, std::string> LevelString = {
 class Logger {
 public:
     Logger() : LOG_LEVEL(LogLevel::INFO) {}
+    void set_level(int level) {
+        this->LOG_LEVEL = level;
+    } 
+    int LOG_LEVEL;
+    std::mutex m_mutex;
 
     class LoggerStream : public std::ostringstream {
     public:
@@ -69,12 +67,6 @@ public:
         int line_no, level;
         Logger &raw_log;
     };
-
-    void set_level(int level) {
-        this->LOG_LEVEL = level;
-    } 
-    int LOG_LEVEL;
-    std::mutex m_mutex;
 };
 
 Logger lin_log;
